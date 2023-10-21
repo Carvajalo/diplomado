@@ -3,6 +3,7 @@ import cors from "cors";
 import config from "./config.js";
 import morgan from 'morgan';
 import userRoutes from  './routes/user.routes.js';
+import sessionRoutes from './routes/session.routes.js';
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.get('/', (_, res) => {
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/auth', sessionRoutes);
 
 export default app;

@@ -169,4 +169,9 @@ userSchema.methods.newPassword = function ({ password }) {
 }
 
 
+userSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
+}
+
+
 export default model("User", userSchema);

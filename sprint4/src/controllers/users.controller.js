@@ -2,9 +2,8 @@ import user from '../models/user.js';
 
 export const getAllUsers = async (req, res) => {
   try {
-    const headers = req.headers;
     const users = await user.find();
-    res.json({ headers, users });
+    res.json({ users });
 
   } catch (error) {
     return res.status(200).json({ message: error.message })
