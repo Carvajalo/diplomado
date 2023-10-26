@@ -23,7 +23,7 @@ export default {
   MONGO_PASSWORD: process.env.MONGO_PASSWORD || '<password>',
   MONGO_DATABASE: process.env.MONGO_DATABASE || '<database>',
   JWT_SECRET: process.env.JWT_SECRET || 'secret',
-  TOKEN_EXPIRATION_TIME: process.env.TOKEN_EXPIRATION_TIME || '1h',
+  TOKEN_EXPIRATION_TIME: process.env.TOKEN_EXPIRATION_TIME || '3w',
   MONGO_CLUSTER: process.env.MONGO_CLUSTER || '<clusterName>',
   API_URL,
 };
