@@ -11,11 +11,11 @@ router.get('/', productCtrl.getAllProducts);
 
 router.post('/', sessionCtrl.validateAdmin, productCtrl.createProduct);
 
-router.get('/:productId', mongoUtils.validateMongoId, productCtrl.getProductById);
+router.get('/:productId', mongoUtils.validateParamMongoId, productCtrl.getProductById);
 
-router.patch('/update/:productId', mongoUtils.validateMongoId,  sessionCtrl.validateAdmin, productCtrl.updateProductById);
+router.patch('/update/:productId', mongoUtils.validateParamMongoId,  sessionCtrl.validateAdmin, productCtrl.updateProductById);
 
-router.delete('/delete/:productId', mongoUtils.validateMongoId, sessionCtrl.validateAdmin, productCtrl.deleteProductById);
+router.delete('/delete/:productId', mongoUtils.validateParamMongoId, sessionCtrl.validateAdmin, productCtrl.deleteProductById);
 
 
 export default router;

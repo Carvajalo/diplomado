@@ -78,3 +78,17 @@ export const userAuthMiddleware = (req, res, next) => {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 };
+
+export const userCredentials = (req, res, next) => {
+  try {
+    const token = req?.headers['authorization']?.split(' ')[1];
+    const user = jwt.verifyToken({ token });
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    req.body.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: error.message });
+  }
+}

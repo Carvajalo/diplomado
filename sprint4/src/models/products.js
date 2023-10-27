@@ -68,7 +68,6 @@ productSchema.pre('save', async function (next) {
 
 productSchema.pre('save', async function (next) {
   const errors = [];
-  console.log("first")
   try {
     if (!this._id) return next(newError({ errors, name: 'Product save error', status: 409 }));
     const existingProduct = await this.constructor.findOne({
@@ -105,8 +104,6 @@ productSchema.pre('findOneAndUpdate', async function (next) {
     if (errors && errors.length > 0) {
       return next(newError({ errors, name: 'Product update error', status: 409 }));
     }
-
-
     next()
   } catch (error) {
     console.log(error);
