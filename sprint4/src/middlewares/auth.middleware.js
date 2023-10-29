@@ -19,7 +19,7 @@ const role = {
 
 export const roleValidation = (req, res, next) => {
   try {
-    const token = req.headers['x-access-token'];
+    const token = req.headers['authorization']?.split(' ')[1];
     const { role } = req.body;
     if (!role) return next();
     if (!token)

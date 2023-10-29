@@ -107,7 +107,6 @@ userSchema.pre('save', async function (next) {
     if (existingUser?.email === this.email) {
       errors.push({ email: 'El email ya está en uso' })
     }
-    console.log(errors)
     if (errors.length) {
       return next(newError({ errors, name: 'ValidationError', status: 409 }));
     }
@@ -147,7 +146,6 @@ userSchema.pre('findOneAndUpdate', async function (next) {
     }
 
   } catch (err) {
-    console.log(err.stack)
     next(err);
   }
 });
@@ -162,7 +160,6 @@ userSchema.post('validate', function (doc) {
 userSchema.methods.newPassword = function ({ password }) {
   bcrypt.hash(password, 10, (err, hash) => {
     if (err) return err;
-    console.log("hash: ", hash)
     return hash;
 
   });
