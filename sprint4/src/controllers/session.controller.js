@@ -21,6 +21,17 @@ export const login = async (req, res) => {
   }
 }
 
+export const signup = async (req, res) => {
+  try {
+    const newUser = new User(req.body);
+    const userSaved = await newUser.save();
+    res.status(202).json(userSaved);
+  } catch (error) {
+    console.log(error)
+    return res.status(error.status || 400).json({ message: error.message });
+  }
+}
+
 export const validateAdmin = async (req, res, next) => {
   try {
     const { authorization } = req.headers;

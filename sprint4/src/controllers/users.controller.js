@@ -10,17 +10,6 @@ export const getAllUsers = async (req, res) => {
   }
 }
 
-export const createUser = async (req, res) => {
-  try {
-    const newUser = new user(req.body);
-    const userSaved = await newUser.save();
-    res.status(202).json(userSaved);
-  } catch (error) {
-    console.log(error)
-    return res.status(error.status || 400).json({ message: error.message });
-  }
-}
-
 export const updateUserById = async (req, res) => {
   try {
     const userFound = await user.findById(req.params.userId);

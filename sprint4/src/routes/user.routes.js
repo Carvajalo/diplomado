@@ -6,8 +6,6 @@ const router = Router();
 
 router.get('/', userController.getAllUsers);
 
-router.post('/signup', authMiddleware.roleValidation, userController.createUser);
-
 router.get('/:userId', userController.getUserById);
 
 router.patch('/update/:userId', userController.updateUserById);
