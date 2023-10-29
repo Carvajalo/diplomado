@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { newError } from "../utils/error.utils.js";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 
 const productSchema = new Schema(
@@ -45,6 +46,9 @@ const productSchema = new Schema(
     timestamps: true,
   }
 );
+
+productSchema.plugin(mongoosePaginate);
+
 
 productSchema.pre('save', async function (next) {
   const errors = [];

@@ -13,11 +13,19 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
-    res.json({ products });
+    const { page, limit } = req.query;
+
+    /* if (!page) return res.status(400).json(await Product.find({})); */
+    const options = {
+      page: parseInt(page, 10) || 1,
+      limit: parseInt(limit, 10) || 6,
+    }
+    const products = await Product.paginate({}, options);
+
+    res.status(200).json({ products: products.docs, total: products.totalDocs, limit: products.limit, page: products.page, pages: products.totalPages, next: products.nextPage, prev: products.prevPage });
 
   } catch (error) {
-    return res.status(200).json({ message: error.message })
+    return res.status(400).json({ message: error.message })
   }
 }
 
@@ -52,7 +60,7 @@ export const deleteProductById = async (req, res) => {
     const productDeleted = await Product.findOneAndDelete({ _id: req.params.productId });
     if (!productDeleted) return res.status(404).json({ message: "Product not found" });
     res.json(productDeleted);
-   
+
 
   } catch (error) {
     return res.status(error.status || 400).json({ message: error.message });
