@@ -92,7 +92,7 @@ userSchema.pre("save", function (next) {
 
 
 userSchema.pre('save', async function (next) {
-  const errors = [];
+  let errors = {};
   try {
     const existingUser = await this.constructor.findOne({
       $or: [
@@ -102,12 +102,18 @@ userSchema.pre('save', async function (next) {
     });
     if (!existingUser) return next();
     if (existingUser?.name === this.name) {
-      errors.push({ name: 'El nombre de usuario ya está en uso' })
+      errors = {
+        ...errors,
+        name: 'El nombre de usuario ya está en uso'
+      }
     }
     if (existingUser?.email === this.email) {
-      errors.push({ email: 'El email ya está en uso' })
+      errors = {
+        ...errors,
+        email: 'El email ya está en uso'
+      }
     }
-    if (errors.length) {
+    if (Object.keys(errors)?.length) {
       return next(newError({ errors, name: 'ValidationError', status: 409 }));
     }
     next();

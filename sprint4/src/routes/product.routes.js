@@ -13,7 +13,7 @@ router.post('/', sessionCtrl.validateAdmin, productCtrl.createProduct);
 
 router.get('/:productId', mongoUtils.validateParamMongoId, productCtrl.getProductById);
 
-router.patch('/update/:productId', mongoUtils.validateParamMongoId,  sessionCtrl.validateAdmin, productCtrl.updateProductById);
+router.put('/update/:productId', mongoUtils.validateParamMongoId,  sessionCtrl.validateAdmin, productCtrl.updateProductById);
 
 router.delete('/delete/:productId', mongoUtils.validateParamMongoId, sessionCtrl.validateAdmin, productCtrl.deleteProductById);
 
