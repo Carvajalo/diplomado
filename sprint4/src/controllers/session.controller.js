@@ -40,10 +40,9 @@ export const validateAdmin = async (req, res, next) => {
     const { role } = verifyToken({ token });
     console.log({role})
     if (role !== "admin") return res.status(401).json({ message: 'Unauthorized' });
-
     req.role = role;
     next();
   } catch (e) {
-    res.status(400).json({ message: e.message, line: e.stack });
+    res.status(400).json({ message: e.message });
   }
 }

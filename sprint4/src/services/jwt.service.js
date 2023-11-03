@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import config from '../config.js';
+import { newError } from '../utils/error.utils.js';
 
 const { JWT_SECRET, TOKEN_EXPIRATION_TIME } = config;
 
@@ -8,7 +9,11 @@ export const generateToken = ({ payload }) => {
 };
 
 export const verifyToken = ({ token }) => {
-  return jwt.verify(token, JWT_SECRET);
+  try {
+    return jwt.verify(token, JWT_SECRET)
+  } catch (e) {
+    throw newError({ errors: 'Token expired', name: 'TokenExpiredError', status: 401 });
+  }
 }
 
 export const regenerateToken = ({ token }) => {

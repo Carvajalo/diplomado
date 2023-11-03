@@ -88,29 +88,39 @@ productSchema.pre('save', async function (next) {
 });
 
 productSchema.pre('findOneAndUpdate', async function (next) {
-  const errors = [];
+  let errors = {};
   try {
-    if (this._update._id) errors.push({ id: "Product id cannot be updated" });
-    if (this._update?.discount > 100) errors.push({ message: "Discount cannot be greater than 100" });
-    if (this._update?.discount < 0) errors.push({ message: "Discount cannot be less than 0" });
-    if (this._update?.price < 0) errors.push({ message: "Price cannot be less than 0" });
-    if (this._update?.stock < 0) errors.push({ message: "Stock cannot be less than 0" });
-    if (this._update?.image?.length === 0) errors.push({ message: "Image cannot be empty" });
-    if (this._update?.category?.length === 0) errors.push({ message: "Category cannot be empty" });
-    if (this._update?.name) {
-      const existingProduct = await this.constructor.findOne({
-        name: this._update?.name
-      }
-      );
-      if (existingProduct) errors.push({ message: "Product already exists" });
+    const {
+      name,
+      discount,
+      price,
+      stock,
+      image,
+      category
+    } = this._update;
+
+    if (this._update._id) errors = { ...errors, _id: 'Cannot update _id' };
+    if (discount && discount > 100) errors = { ...errors, discount: "Discount cannot be greater than 100" };
+    if (discount && discount < 0) errors = { ...errors, discount: "Discount cannot be less than 0" };
+    if (price && price < 0) errors = { ...errors, price: "Price cannot be less than 0" };
+    if (stock && stock < 0) errors = { ...errors, stock: "Stock cannot be less than 0" };
+    if (image && image?.length === 0) errors = { ...errors, image: "Image cannot be empty" };
+    if (category && category?.length === 0) errors = { ...errors, category: "Category cannot be empty" };
+    if (name) {
+      const existingProduct = await this.model.findOne({
+        $or: [
+          { _id: this.getQuery()._id },
+          { name: this._update?.name },
+        ]
+      });
+      if (existingProduct && existingProduct?.name !== name) errors = { ...errors, name: 'Product name already exists' }
     }
-    console.log()
-    if (errors && errors.length > 0) {
+    if (errors && Object.keys(errors)?.length) {
       return next(newError({ errors, name: 'Product update error', status: 409 }));
     }
     next()
   } catch (error) {
-    console.log(error);
+    throw newError({ errors: error.message, name: 'Product update error', status: 409, stack: error.stack })
   }
 });
 
