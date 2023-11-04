@@ -104,13 +104,13 @@ userSchema.pre('save', async function (next) {
     if (existingUser?.name === this.name) {
       errors = {
         ...errors,
-        name: 'El nombre de usuario ya está en uso'
+        name: 'Username is already in use'
       }
     }
     if (existingUser?.email === this.email) {
       errors = {
         ...errors,
-        email: 'El email ya está en uso'
+        email: 'Email is already in use'
       }
     }
     if (Object.keys(errors)?.length) {

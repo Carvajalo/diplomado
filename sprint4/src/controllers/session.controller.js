@@ -15,7 +15,7 @@ export const login = async (req, res) => {
     const { role, name } = user;
     const payload = { id: user._id, role, name };
     const token = generateToken({ payload });
-    return res.status(200).json({ token, role: user.role });
+    return res.status(200).json({ token, role: user.role, name: user.name });
   } catch (e) {
     res.status(400).json({ message: e.message, line: e.stack });
   }
