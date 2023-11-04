@@ -107,16 +107,12 @@ productSchema.pre('findOneAndUpdate', async function (next) {
     if (image && image?.length === 0) errors = { ...errors, image: "Image cannot be empty" };
     if (category && category?.length === 0) errors = { ...errors, category: "Category cannot be empty" };
     if (name) {
-      const existingProduct = await this.model.findOne({
-        $or: [
-          { _id: this.getQuery()._id },
-          { name: this._update?.name },
-        ]
-      });
-      if (existingProduct && existingProduct?.name !== name) errors = { ...errors, name: 'Product name already exists' }
+      const existingProduct = await this.model.findOne({ name: this._update?.name });
+      /* console.log({existingProduct: {name: existingProduct?.name, _id:existingProduct?._id?.toString(),},update: {name: this._update?.name,_id: this.getQuery()}}); */
+      if (existingProduct && existingProduct._id?.toString() !== this.getQuery()?._id) errors = { ...errors, name: 'Product name already exists' }
     }
     if (errors && Object.keys(errors)?.length) {
-      return next(newError({ errors, name: 'Product update error', status: 409 }));
+      throw newError({ errors, name: 'Product update error', status: 409 })
     }
     next()
   } catch (error) {
