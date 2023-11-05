@@ -9,7 +9,7 @@ const router = Router();
 
 router.get('/', productCtrl.getAllProducts);
 
-router.post('/create', sessionCtrl.validateAdmin, productCtrl.createProduct);
+router.post('/', sessionCtrl.validateAdmin, productCtrl.createProduct);
 
 router.get('/:productId', mongoUtils.validateParamMongoId, productCtrl.getProductById);
 
