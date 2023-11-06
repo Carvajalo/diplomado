@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && node dist/index.js",
     "dev": "nodemon src/index.js",
-    "build": "SET NODE_ENV=production && (if EXIST dist (rmdir /s /q dist)) && mkdir dist && npx babel --config-file ./babel.config.js src/ --out-dir dist --copy-files --ignore src/**/*.spec.js --no-copy-ignored"
+    "build": "babel src --out-dir dist --copy-files"
   },
   "keywords": [],
   "author": "",
