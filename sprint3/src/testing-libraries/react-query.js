@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box } from "@chakra-ui/react";
 
 import { fetchData } from "../services/tests.js";
@@ -15,25 +15,31 @@ const QueryReact = () => {
   });
 
   const mutations = {
-    delete: (data) => {
-      console.log("data: ", data);
-      return fetch(`http://localhost:3001/api/usersssss/${data}`, {
-        method: "GET",
-      });
+    delete: ({ endpoint, resourceIdentifier, token }) => {
+      return {
+        endpoint: endpoint,
+        method: "DELETE",
+        resourceIdentifier,
+        token,
+      }
     },
-    create: (data) => {
-      console.log(data);
-      return fetch("http://localhost:3001/api/usersre", {
-        method: "GET",
-      });
-    },
-    update: (data) => {
-      console.log(data);
-      return fetch("http://localhost:3001/api/usersre", {
-        method: "GET",
-      });
-    },
+    create: (data, options) => {
+
+    }
+
+
+    /* 
+     endpoint,
+    method,
+    contentType,
+    body,
+    token,
+    pageParam,
+    resourceIdentifier,
+    */
   };
+
+
 
   const handleMutation = ({ type, data }) => {
     console.log(type, data);

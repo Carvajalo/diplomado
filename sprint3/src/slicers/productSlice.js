@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+/* {Este slicer no se está usando por el momento, si está es porque se me olvidó quitarlo} */
 export const productSlice = createSlice({
   name: 'products',
   initialState: {

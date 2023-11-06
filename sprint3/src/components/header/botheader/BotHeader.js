@@ -1,33 +1,63 @@
 
-import { Image, Flex, Button, HStack, chakra, Link, Text, InputLeftElement, InputGroup, Input, Spacer, Box, IconButton, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { Image, Flex, Button, HStack, chakra, Link, Text, InputLeftElement, InputGroup, Input, Spacer, Box, IconButton, Menu, MenuButton, MenuList, MenuItem, Tooltip, MenuDivider } from '@chakra-ui/react';
 import Logo from '../../../assets/descarga.svg'
-import React from "react";
+import React, { useEffect } from "react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { FaBars, FaShoppingCart, FaUser } from "react-icons/fa";
+import useToggle from '../../../hooks/useToggle';
+import Cart from '../cart/Cart';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectUser, logout } from '../../../slicers/userSlice';
+import { useAlert } from '../../../hooks/useAlert';
 
 
 const MenuOptions = [
   {
-    name: 'Sobre Nosotros',
-    path: '/sobre-nosotros'
+    name: 'About us',
+    path: '/aboutUs'
   },
   {
-    name: 'Patrocinadores',
-    path: '/patrocinadores'
+    name: 'Sponsors',
+    path: '/sponsors'
   },
   {
-    name: 'Cómo Llegar',
-    path: '/como-llegar'
+    name: 'How to find us',
+    path: '/findUs'
+  },
+  {
+    name: 'Products',
+    path: '/products',
+    role: 'admin',
   }
 ]
 
 
 
 export default function Header() {
+  const [isOpen, setIsOpen, toggle] = useToggle()
+  const { openAlert } = useAlert();
+  const navigate = useNavigate();
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log(user);
+  }, [user])
+
+  const handleNavigationHome = () => {
+    console.log({location: window.location.pathname})
+    if(window.location.pathname === '/home') return openAlert({
+      type: 'info',
+      message: 'You are already in the home page!',
+    });
+    navigate('/home');
+  }
+
   return (
     <Flex alignItems="center" px={'5%'}>
       <Text fontSize="xl" fontWeight="bold" color="white">
-        <Image src={Logo} boxSize="50px" alt="Logo" />
+        <Image src={Logo} boxSize="50px" alt="Logo" onClick={handleNavigationHome} />
       </Text>
       <Spacer />
 
@@ -40,15 +70,15 @@ export default function Header() {
         />
       </Box>
       <Flex display={{ base: "none", md: "flex" }} alignItems="center">
-        <Link href="/" mr={4} color="white">
-          About us
-        </Link>
-        <Link href="/" mr={4} color="white">
-          Sponsors
-        </Link>
-        <Link href="/" mr={4} color="white">
-          How to find us
-        </Link>
+        {
+          MenuOptions.map((option, index) => (
+            <Link href={option.path} mr={4} color="white" key={index}>
+              {
+                option?.role !== 'admin' ? option.name : user?.role === 'admin' && option.name
+              }
+            </Link>
+          ))
+        }
       </Flex>
       {/* Barra de búsqueda */}
       {/* <HStack>
@@ -63,31 +93,66 @@ export default function Header() {
 
       <Flex alignItems="center">
         {/* Carrito de compras */}
-        {/*  <IconButton
-          aria-label="Carrito de Compras"
-          icon={<FaShoppingCart />}
-          bg="transparent"
-          color="white"
-          mr={4}
-        /> */}
+        {
+          user?.role !== 'admin' &&
+          <Tooltip label="Shopping cart" placement='top'>
+            <IconButton
+              icon={<FaShoppingCart />}
+              bg="transparent"
+              color="white"
+              mr={4}
+              _hover={{ bg: 'gray.400', borderRadius: 'md' }}
+              _expanded={{ bg: 'blue.400' }}
+              onClick={toggle}
+            />
+          </Tooltip>}
+        {/* Drawer CART */}
+        <Cart isOpen={isOpen} onClose={toggle} />
         <Menu>
-          <MenuButton
-            as={Box}
-            color={'white'}
-            p={2}
-            _hover={{ bg: 'gray.400', borderRadius: 'md' }}
-            _expanded={{ bg: 'blue.400' }}
+          <Tooltip label="User session" placement='top'>
+            <MenuButton
+              as={Box}
+              color={'white'}
+              p={3}
+              _hover={{ bg: 'gray.400', borderRadius: 'md' }}
+              _expanded={{ bg: 'blue.400' }}
 
-          >
-            <FaUser />
-          </MenuButton>
+            >
+              {<FaUser />}
+            </MenuButton>
+          </Tooltip>
           <MenuList bg='blackAlpha.400'  >
-            <MenuItem fontWeight="bold" fontSize="lg" bg='blackAlpha.400' >
-              Inicio de Sesión
-            </MenuItem>
-            <MenuItem fontWeight="bold" fontSize="lg" bg='blackAlpha.400' >
-              Registrarse
-            </MenuItem>
+            {
+              !user?.token && (
+                <>
+                  <MenuItem fontWeight="bold" fontSize="lg" bg='blackAlpha.400' onClick={() =>
+                    navigate('/login')
+                  } >
+                    Log in
+                  </MenuItem>
+                  <MenuItem fontWeight="bold" fontSize="lg" bg='blackAlpha.400' onClick={() =>
+                    navigate('/signup')
+                  } >
+                    Sign in
+                  </MenuItem>
+                </>
+              )
+            }
+            {
+              user?.token && (
+                <MenuItem fontWeight="bold" fontSize="lg" bg='blackAlpha.400'
+                  onClick={() => {
+                    openAlert({
+                      type: "info",
+                      message: "Successfully logged out",
+                    })
+                    dispatch(logout());
+                    navigate('/home');
+                  }} >
+                  Log out!
+                </MenuItem>
+              )
+            }
           </MenuList>
         </Menu>
       </Flex>

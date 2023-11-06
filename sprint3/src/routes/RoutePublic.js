@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Routes } from 'react-router-dom'
 import Login from '../screens/Login'
 import Home from '../screens/Home'
@@ -17,6 +17,7 @@ const RoutePublic = () => {
   return (
     <ContainerFull height={'auto'} minH={'100vh'}>
       <Routes>
+        <Route path='*' element={<Navigate to="/home" replace />} />
         {
           publicRoutes.map((route, index) => {
             const { element } = route
@@ -30,7 +31,6 @@ const RoutePublic = () => {
             )
           })
         }
-        <Route path='*' element={<Navigate to="/home" replace />} />
       </Routes>
     </ContainerFull>
   )

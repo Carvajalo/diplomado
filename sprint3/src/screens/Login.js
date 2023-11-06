@@ -7,49 +7,64 @@ import {
   FormLabel,
   Button,
   Flex,
+  FormErrorMessage,
+  FormHelperText,
 } from "@chakra-ui/react";
 
-import { fetchData } from "../services/tests.js";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../slicers/userSlice.js";
-import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import useUtilQuery from "../hooks/useUtilQuery.js";
+import API_URL from "../constants/apiConst.js";
+import { useAlert } from "../hooks/useAlert.js";
+import { toast } from "react-toastify";
 
 const Login = () => {
+  const { openAlert } = useAlert();
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state);
   const dispatch = useDispatch();
-
-  const mutations = {
-    login: (data) => {
-      return fetchData("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }).then((data) => {
-        dispatch(login(data));
-        navigate("/");
-      });
-    },
-  };
-
-  const handleMutation = ({ type, data }) => {
-    return mutations[type](data);
-  };
-
-  const mutation = useMutation({
-    mutationFn: handleMutation,
-    retry: 2,
-    onSuccess: () => {},
-    onError: () => {
-      console.log("error");
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
     },
   });
 
-  const [username, setUsername] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const { mutation: { mutate, ...rest } } =
+    useUtilQuery({}, { queryKey: ["user"] })
+
+  const onSubmit = (data) => {
+    const req = {
+      endpoint: API_URL.LOGIN,
+      method: "POST",
+      body: data,
+    };
+    mutate(
+      req, {
+      onSuccess: ({ data }) => {
+        openAlert({
+          type: "info",
+          message: `Welcome back ${data.name}!`,
+        })
+        dispatch(login(data));
+        navigate("/");
+      },
+      onError: (error) => {
+        console.log(error)
+        openAlert({
+          type: "error",
+          message: error?.response?.data?.message || "Login error",
+        })
+      },
+    }
+    );
+  }
+
 
   return (
     <Flex
@@ -57,7 +72,11 @@ const Login = () => {
       alignItems="center" // Centrado vertical
       height="100vh" // 100% de la altura de la pantalla
     >
-      <Box w="30vw">
+      <form style={{
+        width: "30vw",
+      }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Stack
           spacing={4}
           maxWidth="md"
@@ -66,31 +85,63 @@ const Login = () => {
           borderWidth={1}
           borderRadius={8}
         >
-          <FormControl id="username">
-            <FormLabel>Username</FormLabel>
+          <FormControl id="email" isInvalid={errors.email}>
+            <FormLabel>Email</FormLabel>
             <Input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              {
+              ...register("email", {
+                required: "This is required",
+              })
+              }
             />
+            {
+              errors.email ? (
+                <FormErrorMessage>
+                  {errors.email.message}
+                </FormErrorMessage>
+              ) : (
+                <FormHelperText textAlign={'start'}>
+                  Type your email
+                </FormHelperText>
+              )
+            }
           </FormControl>
-          <FormControl id="password">
+          <FormControl id="password" isInvalid={errors.password}>
             <FormLabel>Password</FormLabel>
             <Input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="email"
+              {
+              ...register("password", {
+                required: "This is required",
+                minLength: {
+                  value: 8,
+                  message: "Password min length is 8",
+                },
+                maxLength: {
+                  value: 20,
+                  message: "Password max length is 20",
+                },
+              })
+              }
             />
+            {
+              errors.password ? (
+                <FormErrorMessage>
+                  {errors.password.message}
+                </FormErrorMessage>
+              ) : (
+                <FormHelperText textAlign={'start'}>
+                  Password must be 8-20 characters long
+                </FormHelperText>
+              )
+            }
           </FormControl>
           <Flex justifyContent="start" alignContent="center" w="100%" gap="1vh">
             <Button
               colorScheme="blue"
-              onClick={() =>
-                mutation.mutate({
-                  type: "login",
-                  data: { email: username, password },
-                })
-              }
+              type="submit"
             >
               Login
             </Button>
@@ -104,7 +155,7 @@ const Login = () => {
             </Button>
           </Flex>
         </Stack>
-      </Box>
+      </form>
     </Flex>
   );
 };

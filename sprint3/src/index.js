@@ -10,6 +10,9 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { extendTheme } from "@chakra-ui/react";
 import { PersistGate } from "redux-persist/integration/react";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // 2. Extend the theme to include custom colors, fonts, etc
 
@@ -33,6 +36,8 @@ root.render(
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <App />
+            <ToastContainer />
+            {/* <ReactQueryDevtools /> */}
           </PersistGate>
         </Provider>
       </React.StrictMode>

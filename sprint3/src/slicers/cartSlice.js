@@ -9,23 +9,25 @@ export const cartSlice = createSlice({
   },
   reducers: {
     increase: (state, action) => {
-      console.log(action.payload)
-      const product = state.products.find((product) => product.id === action.payload.id);
-      state.value += action.payload.price;
-      if (product) return product.quantity += 1;
-      state.products.push({
-        ...action.payload,
-        quantity: 1,
-      });
-      state.quantity += 1;
+      console.log(action)
+      const index = state.products.findIndex((product) => product.id === action.payload.id);
+      if (index === -1) {
+        state.products.push({ ...action.payload, quantity: action.payload.quantity });
+        state.value += action.payload.price;
+        state.quantity += 1;
+        return;
+      }
+      state.products[index].quantity += action.payload.quantity;
+      state.value += state.products[index].price * action.payload.quantity;
     },
-    /* Ahora el reducer para disminuir la cantidad */
     decrease: (state, action) => {
-      const product = state.products.find((product) => product.id === action.payload.id);
-      if (product) {
-        product.quantity -= 1;
-        state.value -= product.price;
-        state.quantity -= 1;
+      const index = state.products.findIndex((product) => product.id === action.payload.id);
+      if (index === -1) {
+        return;
+      }
+      if (state?.products[index]?.quantity > action?.payload?.quantity) {
+        state.products[index].quantity = state?.products?.[index]?.quantity - action?.payload?.quantity;
+        state.value = state.value - action.payload.price * action.payload.quantity;
       }
     },
     remove: (state, action) => {
@@ -39,12 +41,21 @@ export const cartSlice = createSlice({
       state.value = 0;
       state.quantity = 0;
     },
+    editQuantity: (state, action) => {
+      const product = state.products.find((product) => product.id === action.payload.id);
+      if (product) {
+        state.value -= product.price * product.quantity;
+        product.quantity = action.payload.quantity;
+        state.value += product.price * product.quantity;
+        return;
+      }
+    },
   }
 });
 
 export const selectCart = (state) => state.cart;
 
-export const { increase: addToCart, decrease: decreaseQuantity, remove: removeToCart, clear: ClearCart } = cartSlice.actions;
+export const { increase: addToCart, decrease: decreaseQuantity, remove: removeToCart, clear: clearCart, editQuantity } = cartSlice.actions;
 
 export default cartSlice.reducer;
 

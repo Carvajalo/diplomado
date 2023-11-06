@@ -1,135 +1,52 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import testImage from '../../assets/descarga.svg'
-import { Box, Image, Text, Flex, Grid, useColorMode } from '@chakra-ui/react';
+import { Box, Image, Text, Flex, Grid, useColorMode, Button } from '@chakra-ui/react';
 import Product from '../products/Product';
+import { useSelector } from 'react-redux';
+import { selectCart } from '../../slicers/cartSlice';
+import useUtilQuery from '../../hooks/useUtilQuery';
+import API_URL from '../../constants/apiConst';
+import { useInfiniteQuery } from '@tanstack/react-query'
 
 const ListProducts = () => {
-  const products = [
-    {
-      image: testImage,
-      title: 'Product 1',
-      description: 'This is a description for product 1',
-      price: 25,
-    },
-    {
-      image: testImage,
-      title: 'Product 2',
-      description: 'This is a description for product 2',
-      price: 18,
-    },
-    {
-      image: testImage,
-      title: 'Product 3',
-      description: 'This is a description for product 3',
-      price: 30,
-    },
-    {
-      image: testImage,
-      title: 'Product 4',
-      description: 'This is a description for product 4',
-      price: 15,
-    },
-    {
-      image: testImage,
-      title: 'Product 5',
-      description: 'This is a description for product 5',
-      price: 20,
-    },
-    {
-      image: testImage,
-      title: 'Product 6',
-      description: 'This is a description for product 6',
-      price: 35,
-    },
-    {
-      image: testImage,
-      title: 'Product 7',
-      description: 'This is a description for product 7',
-      price: 28,
-    },
-    {
-      image: testImage,
-      title: 'Product 8',
-      description: 'This is a description for product 8',
-      price: 22,
-    },
-    {
-      image: testImage,
-      title: 'Product 9',
-      description: 'This is a description for product 9',
-      price: 40,
-    },
-    {
-      image: testImage,
-      title: 'Product 10',
-      description: 'This is a description for product 10',
-      price: 12,
-    },
-    {
-      image: testImage,
-      title: 'Product 11',
-      description: 'This is a description for product 11',
-      price: 27,
-    },
-    {
-      image: testImage,
-      title: 'Product 12',
-      description: 'This is a description for product 12',
-      price: 19,
-    },
-    {
-      image: testImage,
-      title: 'Product 13',
-      description: 'This is a description for product 13',
-      price: 32,
-    },
-    {
-      image: testImage,
-      title: 'Product 14',
-      description: 'This is a description for product 14',
-      price: 24,
-    },
-    {
-      image: testImage,
-      title: 'Product 15',
-      description: 'This is a description for product 15',
-      price: 17,
-    },
-    {
-      image: testImage,
-      title: 'Product 16',
-      description: 'This is a description for product 16',
-      price: 38,
-    },
-    {
-      image: testImage,
-      title: 'Product 17',
-      description: 'This is a description for product 17',
-      price: 21,
-    },
-    {
-      image: testImage,
-      title: 'Product 18',
-      description: 'This is a description for product 18',
-      price: 29,
-    },
-    {
-      image: testImage,
-      title: 'Product 19',
-      description: 'This is a description for product 19',
-      price: 14,
-    },
-    {
-      image: testImage,
-      title: 'Product 20',
-      description: 'This is a description for product 20',
-      price: 31,
-    },
-  ];
-
-
   const { colorMode } = useColorMode();
-  console.log("colorMode: ", colorMode)
+  const fetchProducts = async ({ pageParam = 1 }) => {
+    const res = await fetch(`${API_URL.GET_PRODUCTS}?page=${pageParam}`)
+    const data = res.json()
+    return data
+  }
+
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['infinity-products'],
+    queryFn: fetchProducts,
+    initialPageParam: 1,
+    getNextPageParam: (data) => {
+      return data?.next
+    },
+    getPreviousPageParam: (data, a) => {
+      return data?.prev
+    },
+    refetchOnWindowFocus: false,
+  })
+
+
+  /* const { query: { data, isError, isLoading } } = useUtilQuery({
+    endpoint: API_URL.GET_PRODUCTS,
+    method: 'GET',
+  }, { queryKey: ['products'] }); */
+
+  useEffect(() => {
+    console.log(data);
+  }, [data])
 
   return (
     <React.Fragment>
@@ -143,22 +60,45 @@ const ListProducts = () => {
         maxW={{ xl: '1200px' }}
         m="0 auto"
       >
-        <Grid
-          w='full'
-          gridGap={6}
-          gridTemplateColumns={"repeat(auto-fit, minmax(30vh, 1fr))"}
-          justifyItems='center'
+        <Box
+          minH={'70.5vh'}
         >
-          {products.map((product, index) => (
-            <Product key={index}
-              id={index}
-              image={product.image}
-              title={product.title}
-              description={product.description}
-              price={product.price}
-            />
-          ))}
-        </Grid>
+          <Grid
+            w='full'
+            gridGap={6}
+            gridTemplateColumns={"repeat(auto-fit, minmax(30vh, 1fr))"}
+            justifyItems='center'
+          >
+            {isLoading || !data ? (
+              <Text>Loading...</Text>
+            ) : (
+              data?.pages?.map((group, _) => (
+                group?.products?.map((product, index) => (
+                  product.stock !== 0 && <Product
+                    key={index}
+                    id={product._id}
+                    title={product.name}
+                    description={product.description}
+                    price={product.price}
+                    image={product.image[0]}
+
+                  />
+                ))
+              ))
+            )}
+          </Grid>
+          <Button
+            onClick={() => fetchNextPage()}
+            mt={8}
+            disabled={!hasNextPage || isFetchingNextPage}
+          >
+            {isFetchingNextPage
+              ? 'Loading more...'
+              : hasNextPage
+                ? 'Load More'
+                : 'Nothing more to load'}
+          </Button>
+        </Box>
       </Flex>
     </React.Fragment>
   );
